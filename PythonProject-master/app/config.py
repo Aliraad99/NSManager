@@ -1,0 +1,18 @@
+import os
+from dotenv import load_dotenv 
+
+load_dotenv()
+
+MYSQL_USERNAME = os.getenv("MSSQL_USERNAME")
+MYSQL_PASSWORD = os.getenv("MSSQL_PASSWORD")
+MYSQL_SERVER = os.getenv("MSSQL_SERVER")
+MYSQL_DATABASE = os.getenv("MSSQL_DATABASE")
+MYSQL_PORT = os.getenv("MSSQL_PORT")
+
+
+DATABASE_URL = f"mysql+aiomysql://{MYSQL_USERNAME}:{MYSQL_PASSWORD}@{MYSQL_SERVER}:{MYSQL_PORT}/{MYSQL_DATABASE}"
+
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = float(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))

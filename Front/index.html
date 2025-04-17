@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>NextSolutions</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+    rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="assets/vendor/quill/quill.snow.css" rel="stylesheet">
+  <link href="assets/vendor/quill/quill.bubble.css" rel="stylesheet">
+  <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+  <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet">
+
+
+  <!-- Template Main CSS File -->
+  <link href="assets/css/style.css" rel="stylesheet">
+
+</head>
+
+
+<body>
+  <div id="details-modal" class="modal fade" tabindex="-1" data-bs-backdrop="false" aria-modal="true" role="dialog">
+    <div class="modal-dialog" style="width: 1000px; max-width: 1000px;">
+      <div class="modal-content" style="width: 1000px;">
+        <div class="modal-header">
+          <h5 class="modal-title">Stream Details</h5>
+          <button type="button" class="btn-close" onclick="CloseModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="card mb-4 border-danger">
+            <div class="card-body p-0">
+              <ul class="list-group list-group-flush" id="ulDetails">
+
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="CloseModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ======= Header ======= -->
+  <header id="header" class="header fixed-top d-flex align-items-center">
+
+    <div class="d-flex align-items-center justify-content-between">
+      <a href="index.html" class="logo d-flex align-items-center">
+        <img src="assets/img/logo.png" alt="logo">
+        <span class="d-none d-lg-block">NextSolutions</span>
+      </a>
+    </div><!-- End Logo -->
+
+
+
+
+
+  </header><!-- End Header -->
+
+
+
+  <main id="main" class="main">
+    <div id="statusAlert" class="alert d-none position-fixed top-0 end-0 m-3" style="z-index: 9999"></div>
+
+    <div class="pagetitle">
+      <h1>Inspection Task</h1>
+
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+
+        <div class="col-lg-12">
+
+          <!-- Filter Bar with Source Selector and Inspect Button -->
+          <div class="filter-bar">
+            <div class="source-selector">
+              <select class="form-select" id="sourceSelect">
+                <option selected>All Sources</option>
+
+
+              </select>
+            </div>
+
+            <div class="duration-selector">
+              <select class="form-select" id="durationSelect">
+                <option value="5">5 seconds</option>
+                <option value="10" selected >10 seconds</option>
+                <option value="15">15 seconds</option>
+                <option value="20">20 seconds</option>
+              </select>
+            </div>
+
+
+
+            <button class="inspect-btn" id="runInspect">
+              <i class="bi bi-play-circle"></i> Run New Capture
+            </button>
+          </div>
+
+          <div id="resultsContainer"></div>
+          <div id="loadingSpinner" class="d-none">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+
+          <div class="video-grid" id="videoGrid">
+            <div class="empty-state text-center py-5">
+              <i class="bi bi-camera-video-off fs-1 text-muted"></i>
+              <p class="text-muted">No inspection results yet. Run an inspection to begin.</p>
+            </div>
+          </div>
+
+
+
+          <!-- Add loading spinner and status alert container -->
+          <div class="status-container mb-3">
+            <div id="loadingSpinner" class="d-none">
+              <div class="spinner-core"></div>
+              <div class="spinner-inner"></div>
+              <div class="spinner-dot"></div>
+            </div>
+
+            <div id="statusAlert" class="alert d-none"></div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer" class="footer">
+    <div class="copyright">
+    </div>
+    <div class="credits">
+    </div>
+  </footer><!-- End Footer -->
+
+
+  <div id="toggleModal" class="position-fixed bottom-0 end-0 mb-4 me-4" style="display:none; z-index: 1000">
+    <button id="toggleButton" class="btn btn-danger btn-lg shadow-lg rounded-pill" style="display:none;">
+      <i class="bi bi-exclamation-triangle"></i>
+      <i class="bi bi-chevron-up"></i>
+    </button>
+    <div id="successfullDiv" class="alert alert-success alert-dismissible fade show" role="alert" style="display:none;">
+      <i class="bi bi-check-circle"></i> All streams processed successfully!
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  </div>
+
+
+  <div id="detailsPanel" class="collapse position-fixed bottom-0 end-0 mb-5 me-5"
+    style="width: 400px; max-height: 60vh; overflow-y: auto; z-index: 999">
+    <div class="card mb-4 border-danger">
+      <div class="card-header bg-danger text-white">
+        <h5 id="panelTitle" class="mb-0"></h5>
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group list-group-flush" id="ulDetailsPanel">
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/chart.js/chart.umd.js"></script>
+  <script src="assets/vendor/echarts/echarts.min.js"></script>
+  <script src="assets/vendor/quill/quill.js"></script>
+  <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
+  <script src="assets/vendor/tinymce/tinymce.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Template Main JS File -->
+  <script src="assets/js/main.js"></script>
+
+
+  <script src="JS\main.js"></script>
+
+</body>
+
+</html>
