@@ -16,7 +16,7 @@ $(document).ready(function() {
  loadSources = () => {
     showLoading(true);
     $.ajax({
-        url: "http://localhost:8000/Sources/GetAllSources",
+        url: "http://104.194.10.42:8000/Sources/GetAllSources",
         type: "GET",
         dataType: "json",
         success: function(data) {
@@ -42,7 +42,7 @@ $(document).ready(function() {
 
  getVideoUrl = (filePath) => {
     const relativePath = filePath.replace(/^.*recordings[\\/]/, '');
-    return `http://localhost:8000/recordings/${relativePath.replace(/\\/g, '/')}`;
+    return `http://104.194.10.42:8000/recordings/${relativePath.replace(/\\/g, '/')}`;
 };
 
  showAlert = (type, message) => {
@@ -246,7 +246,7 @@ $("#runInspect").click(function() {
     showLoading(true);
     try {
          $.ajax({
-            url: `http://localhost:8000/Streams/record-streams-by-source/${sourceId}/${duration}`,
+            url: `http://104.194.10.42:8000/Streams/record-streams-by-source/${sourceId}/${duration}`,
             type: "POST",
             dataType: "json",
             success: function(data) {

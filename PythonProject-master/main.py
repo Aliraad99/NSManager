@@ -11,14 +11,26 @@ from app.Routes.SourceRoutes import router as SourceRoutes
 from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi.staticfiles import StaticFiles
-
+from fastapi.responses import FileResponse
 
 # Mount the static directory
-recordings_path = Path(r"app\recordings")
+from pathlib import Path
+
+frontend_path = Path(__file__).parent / "Front"
+
+recordings_path = Path(__file__).parent / "app" / "recordings"
 
 app = FastAPI()
 
 app.mount("/recordings", StaticFiles(directory=str(recordings_path)), name="recordings")
+app.mount("/assets", StaticFiles(directory=frontend_path / "assets"), name="assets")
+app.mount("/JS", StaticFiles(directory=frontend_path / "JS"), name="js")
+
+@app.get("/")
+async def read_index():
+    return FileResponse(frontend_path / "index.html")
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  

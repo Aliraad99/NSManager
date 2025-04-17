@@ -1,52 +1,61 @@
 import asyncio
-import os
 import shutil
 import subprocess
+import logging
 from pathlib import Path
-import time
 from typing import List, Dict, Tuple
 from concurrent.futures import ThreadPoolExecutor
-import logging
+import signal
 
 logger = logging.getLogger(__name__)
 
 class StreamRecorder:
-    def __init__(self, output_dir: str = None, max_workers: int = 4):
-        # Use absolute path to the recordings directory
+    def __init__(self, output_dir: str = None, max_workers: int = 120):
+        
         base_dir = Path(__file__).parent.parent
         self.output_dir = (base_dir / "recordings") if output_dir is None else Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.executor = ThreadPoolExecutor(max_workers=max_workers)
 
     async def _prepare_source_directory(self, source_id: int, source_name: str) -> Path:
-        """Create directory for source recordings"""
+        """Original directory preparation method with enhanced error handling"""
         source_dir = self.output_dir / f"{source_id}"
-
-        if source_dir.exists():
-            try:
-                shutil.rmtree(source_dir)  # Remove existing directory
-            except Exception as e:
-                logger.error(f"Failed to remove existing directory {source_dir}: {str(e)}")
-                raise RuntimeError(f"Failed to remove existing directory {source_dir}: {str(e)}")
-                
-        source_dir.mkdir(parents=True, exist_ok=True)
-        return source_dir
+        try:
+            
+            await asyncio.get_event_loop().run_in_executor(
+                self.executor,
+                lambda: shutil.rmtree(source_dir, ignore_errors=True))
+            await asyncio.get_event_loop().run_in_executor(
+                self.executor,
+                lambda: source_dir.mkdir(parents=True, exist_ok=True))
+            return source_dir
+        except Exception as e:
+            logger.error(f"Directory error: {str(e)}")
+            raise RuntimeError(f"Failed to prepare directory: {str(e)}")
 
     async def _run_ffmpeg(self, cmd: List[str]) -> Tuple[bool, str]:
-        """Run FFmpeg command in thread pool"""
+        """Original method name with enhanced timeout handling"""
         try:
-            process = await asyncio.get_event_loop().run_in_executor(
-                self.executor,
-                lambda: subprocess.run(
-                    cmd,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    text=True
-                )
+            
+            process = await asyncio.wait_for(
+                asyncio.get_event_loop().run_in_executor(
+                    self.executor,
+                    lambda: subprocess.run(
+                        cmd,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True,
+                        timeout=25  
+                    )
+                ),
+                timeout=30  
             )
             return process.returncode == 0, process.stderr
+        except asyncio.TimeoutError:
+            logger.warning("FFmpeg timed out")
+            return False, "Operation timed out"
         except Exception as e:
-            logger.error(f"FFmpeg execution failed: {str(e)}")
+            logger.error(f"FFmpeg error: {str(e)}")
             return False, str(e)
 
     async def record_stream(
@@ -58,39 +67,48 @@ class StreamRecorder:
         duration: int = 15,
         output_dir: Path = None
     ) -> Dict:
-        """Record a single stream with robust error handling"""
-        if output_dir is None:
-            output_dir = self.output_dir
-            
+        """Your original method signature with optimized parameters"""
+        output_dir = output_dir or self.output_dir
         output_file = output_dir / f"{source_name}_{stream_id}.mp4"
         
+        
         cmd = [
-                "ffmpeg",
-                "-y",
-                
-                "-timeout", "10000000",
-                "-reconnect", "1",
-                "-reconnect_at_eof", "1",
-                "-reconnect_streamed", "1",
-                "-reconnect_delay_max", "10",
-                "-fflags", "+nobuffer",
-                
-                "-i", stream_url,
-                
-                "-t", str(duration),
-                "-c", "copy",
-                "-movflags", "+faststart",
-                "-f", "mp4",
-                str(output_file)
-]
+            "ffmpeg", "-y",
+            "-timeout", "10000000",    
+            "-reconnect", "1",      
+            "-reconnect_delay_max", "5", 
+            "-reconnect_streamed", "1",
+            "-reconnect_on_network_error", "1",
+            "-fflags", "+nobuffer+genpts",
+            "-protocol_whitelist", "file,http,https,tcp,tls",
+            "-rw_timeout", "15000000",  
+            "-i", stream_url,
+            "-t", str(duration),
+            "-c", "copy",
+            "-movflags", "+faststart",
+            "-loglevel", "error",
+            str(output_file)
+        ]
         
         success, error = await self._run_ffmpeg(cmd)
+        
+        # Add post-recording validation
+        if success and output_file.exists():
+            file_size = output_file.stat().st_size
+            if file_size < 102400: 
+                success = False
+                error = f"File too small ({file_size} bytes)"
+                output_file.unlink(missing_ok=True)
         
         return {
             "stream_id": stream_id,
             "output_file": str(output_file),
-            "stream_name":stream_name,
+            "stream_name": stream_name,
             "success": success,
             "error": error,
             "url": stream_url
         }
+
+
+    def __del__(self):
+        self.executor.shutdown(wait=False)
