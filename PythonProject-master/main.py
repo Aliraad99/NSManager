@@ -45,4 +45,3 @@ app.include_router(AuthRoutes, prefix="/Auth", tags=["Auth"])
 app.include_router(UserRoutes, prefix="/Users", tags=["Users"])
 app.include_router(StreamRoutes, prefix="/Streams", tags=["Streams"])
 app.include_router(SourceRoutes, prefix="/Sources", tags=["Sources"])
-

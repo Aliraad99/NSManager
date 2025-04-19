@@ -1,5 +1,6 @@
 var successedStreams = [];
 var failedStreams = [];
+const API_URL = "http://104.194.10.42:8000/";
 
 $(document).ready(function() {
     loadSources();
@@ -16,7 +17,7 @@ $(document).ready(function() {
  loadSources = () => {
     showLoading(true);
     $.ajax({
-        url: "http://104.194.10.42:8000/Sources/GetAllSources",
+        url: API_URL + "Sources/GetAllSources",
         type: "GET",
         dataType: "json",
         success: function(data) {
@@ -42,7 +43,7 @@ $(document).ready(function() {
 
  getVideoUrl = (filePath) => {
     const relativePath = filePath.replace(/^.*recordings[\\/]/, '');
-    return `http://104.194.10.42:8000/recordings/${relativePath.replace(/\\/g, '/')}`;
+    return API_URL + `recordings/${relativePath.replace(/\\/g, '/')}`;
 };
 
  showAlert = (type, message) => {
@@ -76,10 +77,7 @@ function renderStreamDetails(stream){
 function CloseModal(){
     $("#details-modal").addClass("fade d-none").removeClass("show d-block");
 };
-function CopyUrl(Url) {
-    navigator.clipboard.writeText(Url);
-    showAlert('success', 'URL copied to clipboard!');
-};
+
 
  renderResults = (data) => {
             
@@ -165,10 +163,7 @@ function CopyUrl(Url) {
                         </div>
                         
                         <div class="d-flex gap-2">
-                            <button id="btnCopy" class="btn btn-sm btn-outline-primary copy-btn" 
-                                    onclick="CopyUrl(${SourceUrl_});">
-                                <i class="bi bi-clipboard"></i> Copy URL
-                            </button>
+                            
                             <button class="btn btn-sm btn-outline-primary copy-btn" 
                                     onclick="OpenDetails(${streamId}, true)"
                                     >
@@ -202,10 +197,7 @@ function CopyUrl(Url) {
                             Source: ${data.source_name || 'N/A'}
                         </div>
                     <div class="d-flex gap-2">
-                        <button id="btnCopy" class="btn btn-sm btn-outline-primary copy-btn" 
-                                onclick="CopyUrl(${SourceUrl_})">
-                            <i class="bi bi-clipboard"></i> Copy URL
-                        </button>
+                        
                         <button class="btn btn-sm btn-outline-primary copy-btn" 
                                 
                                 onclick="OpenDetails(${streamId}, false)"
@@ -246,7 +238,7 @@ $("#runInspect").click(function() {
     showLoading(true);
     try {
          $.ajax({
-            url: `http://104.194.10.42:8000/Streams/record-streams-by-source/${sourceId}/${duration}`,
+            url: API_URL + `Streams/record-streams-by-source/${sourceId}/${duration}`,
             type: "POST",
             dataType: "json",
             success: function(data) {
