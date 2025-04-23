@@ -2,7 +2,7 @@ var successedStreams = [];
 var failedStreams = [];
 var issuesStreams = [];
 
-const API_URL = "http://104.194.10.42:8000/";
+const API_URL = "http://104.194.10.42:8010/";
 
 $(document).ready(function() {
     loadSources();
