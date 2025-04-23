@@ -16,6 +16,8 @@ class StreamRecorder:
         self.output_dir = (base_dir / "recordings") if output_dir is None else Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.executor = ThreadPoolExecutor(max_workers=max_workers)
+        self.analyze_semaphore = asyncio.Semaphore(15)  # limit concurrent analyses
+
 
     async def _prepare_source_directory(self, source_id: int, source_name: str) -> Path:
         """Original directory preparation method with enhanced error handling"""
@@ -59,7 +61,9 @@ class StreamRecorder:
             return False, str(e)
 
     async def _analyze_stream(self, stream_url: str, duration: int) -> Dict[str, bool]:
-        """Original method name with enhanced error handling"""
+      async with self.analyze_semaphore:
+      
+        
         try:
             cmd = [
         "ffmpeg", "-y",
@@ -73,7 +77,7 @@ class StreamRecorder:
         "-rw_timeout", "15000000",
         "-i", stream_url,
         "-t", str(duration),
-        "-vf", "blackdetect=d=1.5:pic_th=0.90,freezedetect=n=0.01:d=2",
+        "-vf", "blackdetect=d=1.5:pic_th=0.90,freezedetect=n=0.1:d=7",
         "-af", "silencedetect=n=-50dB:d=1",
         "-f", "null", "-"  
     ]
