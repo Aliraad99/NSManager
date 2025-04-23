@@ -54,8 +54,6 @@ async def record_streams_by_source(
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        # 1. Get streams for this source
-
         db_source = await source_repo.GetSourceById(db, SourceId)
         if not db_source:
             raise HTTPException(status_code=404, detail="Source not found")

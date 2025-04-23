@@ -1,9 +1,12 @@
 var successedStreams = [];
 var failedStreams = [];
+var issuesStreams = [];
+
 const API_URL = "http://104.194.10.42:8000/";
 
 $(document).ready(function() {
     loadSources();
+ 
 });
 
  showLoading = (show) => {
@@ -17,7 +20,7 @@ $(document).ready(function() {
  loadSources = () => {
     showLoading(true);
     $.ajax({
-        url: API_URL + "Sources/GetAllSources",
+        url: API_URL+"Sources/GetAllSources",
         type: "GET",
         dataType: "json",
         success: function(data) {
@@ -43,7 +46,7 @@ $(document).ready(function() {
 
  getVideoUrl = (filePath) => {
     const relativePath = filePath.replace(/^.*recordings[\\/]/, '');
-    return API_URL + `recordings/${relativePath.replace(/\\/g, '/')}`;
+    return API_URL+`recordings/${relativePath.replace(/\\/g, '/')}`;
 };
 
  showAlert = (type, message) => {
@@ -63,52 +66,36 @@ function OpenDetails(streamId, isFailed){
     $("#ulDetails").html(html);
 };
 
-function renderStreamDetails(stream){    
-    return `
-        <li class="list-group-item">
-            <div class="fw-bold">Stream ID: ${stream.stream_id}</div>
-            <div class="fw-bold">Stream Name: ${stream.stream_name}</div>
-            <div class="text-muted small">URL: ${stream.url}</div>
-            <div class="text-danger small">Error: ${stream.error}</div>
-        </li>
-    `;
+function renderStreamDetails(stream){  
+     
+        let issuesHtml = '';
+        if (stream.issues && Object.keys(stream.issues).length > 0) {
+            issuesHtml = `
+            <div class="mt-2">
+                <div class="fw-bold small">Detected Issues:</div>
+                <ul class="list-unstyled mb-0">
+                    ${Object.entries(stream.issues).map(([issue, exists]) => 
+                        exists ? `<li class="text-danger small">• ${issue.replace(/_/g, ' ')}</li>` : ''
+                    ).join('')}
+                </ul>
+            </div>`;
+        }
+    
+        return `
+            <li class="list-group-item">
+                <div class="fw-bold">Stream Name: ${stream.stream_name}</div>
+                <div class="text-muted small">URL: ${stream.url}</div>
+                ${stream.error ? `<div class="text-danger small">Error: ${stream.error}</div>` : ''}
+                ${issuesHtml}
+            </li>
+        `;
+
    }
 
 function CloseModal(){
     $("#details-modal").addClass("fade d-none").removeClass("show d-block");
 };
-
-
  renderResults = (data) => {
-            
-            // const statsHtml = `
-            //                 <div class="row mb-4">
-            //                     <div class="col-md-3 mb-3">
-            //                         <div class="card">
-            //                             <div class="card-body">
-            //                                 <h5 class="card-title text-muted">Total Recordings</h5>
-            //                                 <p class="display-6">${data.success_count + data.failure_count}</p>
-            //                             </div>
-            //                         </div>
-            //                     </div>
-            //                     <div class="col-md-3 mb-3">
-            //                         <div class="card bg-success text-white">
-            //                             <div class="card-body">
-            //                                 <h5 class="card-title">Successful</h5>
-            //                                 <p class="display-6">${data.success_count}</p>
-            //                             </div>
-            //                         </div>
-            //                     </div>
-            //                     <div class="col-md-3 mb-3">
-            //                         <div class="card bg-danger text-white">
-            //                             <div class="card-body">
-            //                                 <h5 class="card-title">Failed</h5>
-            //                                 <p class="display-6">${data.failure_count}</p>
-            //                             </div>
-            //                         </div>
-            //                     </div>
-            //                 </div>
-            //                 `;
 
         let failedHtml = '';
         if (data.failure_count > 0 && data.failed && data.failed.length > 0) {
@@ -119,6 +106,7 @@ function CloseModal(){
 
         $("#toggleModal").removeAttr("style");
         $("#toggleModal").attr("style" , "display:block; z-index: 1000;");
+        $("#toggleModal").attr("style" , "display:block; z-index: 1000;");
 
         if(failedHtml == '') {
             $("#successfullDiv").removeAttr("style");
@@ -127,8 +115,9 @@ function CloseModal(){
             $("#toggleButton").removeAttr("style");
             $("#toggleButton").attr("style" , "display:none");
             $("#panelTitle").text('');
-            $("#detailsPanel").html("AllStreams processed successfully!");
+            $("#detailsPanel").html("All Streams processed successfully!");
         }else{
+            
 
             $("#toggleButton").text(`${data.failure_count} Failed Streams`);
 
@@ -142,28 +131,26 @@ function CloseModal(){
             $("#detailsPanel").html(failedHtml);
         }
 
+
         var videosHtml = data.failed.map(recording => {
             const displayName = recording.stream_name;
             const streamId = recording.stream_id;
             
-            const SourceUrl_ = getVideoUrl(recording.url);
-    
+           
             return `
             <div class="card animate__animated animate__fadeIn">
                 <div class="card-body p-0">
                     <div class="ratio ratio-16x9">
                         <video loop muted autoplay playsinline preload="metadata">
                             <source src="" type="video/mp4"">
+                            <p>video is unavailable.</p>
                         </video>
                     </div>
                     <div class="p-3">
                         <h5 class="card-title" style="color:red;">${displayName}</h5>
-                        <div class="text-muted small mb-2">
-                            Source: ${data.source_name || 'N/A'}
-                        </div>
-                        
+                        <div class="text-danger small mb-2">Connection drops</div>
                         <div class="d-flex gap-2">
-                            
+                           
                             <button class="btn btn-sm btn-outline-primary copy-btn" 
                                     onclick="OpenDetails(${streamId}, true)"
                                     >
@@ -176,50 +163,68 @@ function CloseModal(){
             `;
         }).join('');
 
-    videosHtml += data.successful.map(recording => {
-        const displayName = recording.stream_name;
-        const streamId = recording.stream_id;
-
-        const videoUrl = getVideoUrl(recording.output_file);
-        const SourceUrl_ = getVideoUrl(recording.url);
-
-        return `
-        <div class="card animate__animated animate__fadeIn">
-            <div class="card-body p-0">
-                <div class="ratio ratio-16x9">
-                    <video loop muted autoplay playsinline preload="metadata">
-                        <source src="${videoUrl}?t=${Date.now()}" type="video/mp4">
-                    </video>
-                </div>
-                <div class="p-3">
-                    <h5 class="card-title">${displayName}</h5>
-                 <div class="text-muted small mb-2">
-                            Source: ${data.source_name || 'N/A'}
+       
+        const successfulWithIssues = data.successful.filter(stream => Object.keys(stream.issues).length > 0);
+        const successfulWithoutIssues = data.successful.filter(stream => Object.keys(stream.issues).length === 0);
+ 
+       
+        videosHtml += successfulWithIssues.map(recording => {
+            const displayName = recording.stream_name;
+            const streamId = recording.stream_id;
+            const videoUrl = getVideoUrl(recording.output_file);
+            const issues = Object.keys(recording.issues).join(', ');
+            return `
+                <div class="card animate__animated animate__fadeIn">
+                    <div class="card-body p-0">
+                        <div class="ratio ratio-16x9">
+                            <video loop muted autoplay playsinline preload="metadata">
+                                <source src="${videoUrl}?t=${Date.now()}" type="video/mp4">
+                            </video>
                         </div>
-                    <div class="d-flex gap-2">
-                        
-                        <button class="btn btn-sm btn-outline-primary copy-btn" 
-                                
-                                onclick="OpenDetails(${streamId}, false)"
-                                >
-                            <i class="bi"></i> Capture Details
-                        </button>
+                        <div class="p-3">
+                            <h5 class="card-title" style="color:red;">${displayName}</h5>
+                            ${issues ? `<div class="text-danger small mb-2">Issues: ${issues}</div>` : ''}
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-primary copy-btn" 
+                                        onclick="OpenDetails(${streamId}, false)">
+                                    <i class="bi"></i> Capture Details
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        `;
-    }).join('');
-    $("#videoGrid").html(videosHtml);
-};
-
-$("#toggleButton").click(function() {
-    if ($('#detailsPanel').hasClass('collapse')) {
-        $("#detailsPanel").removeClass("collapse").addClass("show");
-    }else{
-        $("#detailsPanel").removeClass("show").addClass("collapse");
-    }
-})
+            `;
+        }).join('');
+    
+        
+        videosHtml += successfulWithoutIssues.map(recording => {
+            const displayName = recording.stream_name;
+            const streamId = recording.stream_id;
+            const videoUrl = getVideoUrl(recording.output_file);
+            return `
+                <div class="card animate__animated animate__fadeIn">
+                    <div class="card-body p-0">
+                        <div class="ratio ratio-16x9">
+                            <video loop muted autoplay playsinline preload="metadata">
+                                <source src="${videoUrl}?t=${Date.now()}" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="p-3">
+                            <h5 class="card-title">${displayName}</h5>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-primary copy-btn" 
+                                        onclick="OpenDetails(${streamId}, false)">
+                                    <i class="bi"></i> Capture Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    
+        $("#videoGrid").html(videosHtml);
+    };
 
 $("#runInspect").click(function() {
     
@@ -238,7 +243,7 @@ $("#runInspect").click(function() {
     showLoading(true);
     try {
          $.ajax({
-            url: API_URL + `Streams/record-streams-by-source/${sourceId}/${duration}`,
+            url: API_URL+`Streams/record-streams-by-source/${sourceId}/${duration}`,
             type: "POST",
             dataType: "json",
             success: function(data) {
@@ -260,4 +265,12 @@ $("#runInspect").click(function() {
         showAlert('danger', 'An unexpected error occurred. Please try again.');
     }
 });
+
+$("#toggleButton").click(function() {
+    if ($('#detailsPanel').hasClass('collapse')) {
+        $("#detailsPanel").removeClass("collapse").addClass("show");
+    }else{
+        $("#detailsPanel").removeClass("show").addClass("collapse");
+    }
+})
 

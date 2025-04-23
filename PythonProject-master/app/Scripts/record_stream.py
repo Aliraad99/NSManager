@@ -58,6 +58,44 @@ class StreamRecorder:
             logger.error(f"FFmpeg error: {str(e)}")
             return False, str(e)
 
+    async def _analyze_stream(self, stream_url: str, duration: int) -> Dict[str, bool]:
+        """Original method name with enhanced error handling"""
+        try:
+            cmd = [
+        "ffmpeg", "-y",
+        "-timeout", "10000000",
+        "-reconnect", "1",
+        "-reconnect_delay_max", "5",
+        "-reconnect_streamed", "1",
+        "-reconnect_on_network_error", "1",
+        "-fflags", "+nobuffer+genpts",
+        "-protocol_whitelist", "file,http,https,tcp,tls",
+        "-rw_timeout", "15000000",
+        "-i", stream_url,
+        "-t", str(duration),
+        "-vf", "blackdetect=d=1.5:pic_th=0.90,freezedetect=n=0.01:d=2",
+        "-af", "silencedetect=n=-50dB:d=1",
+        "-f", "null", "-"  
+    ]
+            success, stderr = await self._run_ffmpeg(cmd)
+
+            issues = {}
+            if stderr:
+                if "black_start" in stderr:
+                    issues["black_screen"] = True
+                if "silence_start" in stderr:
+                    issues["no audio"] = True
+                if "freezedetect" in stderr:
+                    issues["freezing"] = True
+            return issues
+        except Exception as e:
+            logger.error(f"Stream analysis error: {str(e)}")
+            return {"error": str(e)}
+
+
+
+
+
     async def record_stream(
         self, 
         stream_url: str, 
@@ -70,18 +108,21 @@ class StreamRecorder:
         """Your original method signature with optimized parameters"""
         output_dir = output_dir or self.output_dir
         output_file = output_dir / f"{source_name}_{stream_id}.mp4"
+
+
+        issues = await self._analyze_stream(stream_url, duration)
         
-        # Enhanced FFmpeg command while maintaining your structure
+        
         cmd = [
             "ffmpeg", "-y",
-            "-timeout", "10000000",      # Increased from 3s to 10s
-            "-reconnect", "1",          # Added reconnect attempts
-            "-reconnect_delay_max", "5", # Max delay between attempts
+            "-timeout", "10000000",      
+            "-reconnect", "1",      
+            "-reconnect_delay_max", "5", 
             "-reconnect_streamed", "1",
             "-reconnect_on_network_error", "1",
             "-fflags", "+nobuffer+genpts",
             "-protocol_whitelist", "file,http,https,tcp,tls",
-            "-rw_timeout", "15000000",   # Added I/O timeout
+            "-rw_timeout", "15000000",   
             "-i", stream_url,
             "-t", str(duration),
             "-c", "copy",
@@ -92,7 +133,7 @@ class StreamRecorder:
         
         success, error = await self._run_ffmpeg(cmd)
         
-        # Add post-recording validation
+        
         if success and output_file.exists():
             file_size = output_file.stat().st_size
             if file_size < 102400:  # 100KB minimum
@@ -106,9 +147,11 @@ class StreamRecorder:
             "stream_name": stream_name,
             "success": success,
             "error": error,
-            "url": stream_url
+            "url": stream_url,
+            "issues": issues
+
         }
 
-    # Add graceful shutdown if missing in original
+    
     def __del__(self):
         self.executor.shutdown(wait=False)
