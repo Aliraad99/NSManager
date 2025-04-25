@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Submitting login request with:", { UserEmail: email, UserPassword: password });
   
       try {
-        const response = await fetch("http://localhost:8010/Auth/Login/", {
+        const response = await fetch("http://104.194.10.42:8010/Auth/Login/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
