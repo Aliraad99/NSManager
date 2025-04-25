@@ -20,6 +20,7 @@ async def GetAllUsers(db: AsyncSession):
     return result.scalars().all()
 
 async def SaveUser(db: AsyncSession, user: UserSchema):
+    
     db_user: User
     if user.Id == 0 or user.Id is None:
         hashedPassword = pwd_context.hash(user.Password)

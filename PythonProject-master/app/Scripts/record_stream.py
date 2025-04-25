@@ -16,7 +16,7 @@ class StreamRecorder:
         self.output_dir = (base_dir / "recordings") if output_dir is None else Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.executor = ThreadPoolExecutor(max_workers=max_workers)
-        self.analyze_semaphore = asyncio.Semaphore(15)  # limit concurrent analyses
+        self.analyze_semaphore = asyncio.Semaphore(8)  # limit concurrent analyses
 
 
     async def _prepare_source_directory(self, source_id: int, source_name: str) -> Path:
@@ -74,11 +74,11 @@ class StreamRecorder:
         "-reconnect_on_network_error", "1",
         "-fflags", "+nobuffer+genpts",
         "-protocol_whitelist", "file,http,https,tcp,tls",
-        "-rw_timeout", "15000000",
+        "-rw_timeout", "15000000",	
         "-i", stream_url,
         "-t", str(duration),
-        "-vf", "blackdetect=d=1.5:pic_th=0.90,freezedetect=n=0.1:d=7",
-        "-af", "silencedetect=n=-50dB:d=1",
+        "-vf", "blackdetect=d=6:pic_th=0.99,freezedetect=n=0.001:d=10",
+        "-af", "silencedetect=n=-60dB:d=2",
         "-f", "null", "-"  
     ]
             success, stderr = await self._run_ffmpeg(cmd)

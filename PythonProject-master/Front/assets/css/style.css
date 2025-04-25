@@ -238,6 +238,9 @@ h6 {
 
 .card-body {
   padding: 0 20px 20px 20px;
+  border-radius: 15px; /* Rounded corners */
+  background-color: #ffffff; /* Light gray background */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle box shadow */
 }
 
 .card-img-overlay {
@@ -1135,6 +1138,7 @@ h6 {
   background: rgba(248, 249, 250, 0.9);
   border-radius: 8px;
   margin-bottom: 20px;
+  margin-top: 20px;
   box-shadow: 0 2px 10px rgba(1, 41, 112, 0.05);
   border: 1px solid rgba(1, 41, 112, 0.1);
   transition: all 0.3s ease;
@@ -1145,25 +1149,7 @@ h6 {
 }
 
 
-.source-selector {
-  flex-grow: 1;
-  margin-right: 15px;
-}
 
-.source-selector .form-select {
-  border-radius: 6px;
-  border: 1px solid #dee2e6;
-  padding: 8px 15px;
-  font-size: 14px;
-  color: #012970;
-  transition: all 0.3s ease;
-  box-shadow: none;
-}
-
-.source-selector .form-select:focus {
-  border-color: #4154f1;
-  box-shadow: 0 0 0 0.25rem rgba(65, 84, 241, 0.25);
-}
 
 .inspect-btn {
   background-color: #3f4aaa;
@@ -1422,4 +1408,329 @@ h6 {
 }
 .collapsing {
   transition: height 0.3s ease;
+}
+
+
+
+
+
+/* Search Bar Styling */
+.search-bar {
+  position: relative;
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.search-bar input {
+  flex: 1;
+  width: 100%;
+  max-width: 400px;
+  padding: 12px 20px;
+  font-size: 16px;
+  border: 2px solid #000000; /* Primary color */
+  border-radius: 25px;
+  outline: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.search-bar input:focus {
+  border-color: #3141c1; /* Darker primary color */
+  box-shadow: 0 6px 12px rgba(65, 84, 241, 0.2);
+}
+
+.search-bar input::placeholder {
+  color: #899bbd; /* Light gray */
+  font-style: italic;
+}
+
+.search-bar button {
+  position: absolute;
+  right: 10px;
+  background-color: #4154f1; /* Primary color */
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.search-bar button:hover {
+  background-color: #5f6594; /* Darker primary color */
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.search-bar button:focus {
+  outline: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .search-bar input {
+    max-width: 100%;
+    font-size: 14px;
+    padding: 10px 15px;
+  }
+
+  .search-bar button {
+    padding: 8px 12px;
+    font-size: 16px;
+  }
+}
+
+.search-bar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem; /* Add spacing between elements */
+  margin-bottom: 1rem; /* Add some space below the container */
+}
+
+
+/* Style for the page size select dropdown */
+#pageSizeSelect {
+  width: auto; /* Adjust width to fit content */
+  padding: 0.375rem 0.75rem; /* Add padding for better appearance */
+  font-size: 0.9rem; /* Adjust font size */
+  border-radius: 0.25rem; /* Add rounded corners */
+}
+
+/* Style for the total count display */
+#totalCount {
+  font-size: 0.9rem; /* Adjust font size */
+  font-weight: bold; /* Make it stand out */
+  color: #333; /* Set a neutral text color */
+}
+
+
+/* 
+
+
+
+/* Enhanced Add Stream and Add Source Buttons */
+.add-btn {
+  background: linear-gradient(135deg, #4154f1, #3141c1); /* Gradient background */
+  color: #fff; /* White text */
+  padding: 12px 20px; /* Add padding for better spacing */
+  font-size: 16px; /* Slightly larger font size */
+  font-weight: 600; /* Bold text */
+  border: none; /* Remove border */
+  border-radius: 30px; /* Fully rounded corners */
+  box-shadow: 0 4px 8px rgba(65, 84, 241, 0.2); /* Subtle shadow */
+  transition: all 0.3s ease; /* Smooth transition for hover effects */
+  display: flex; /* Flexbox for alignment */
+  align-items: center; /* Center icon and text vertically */
+  gap: 10px; /* Space between icon and text */
+  cursor: pointer; /* Pointer cursor on hover */
+}
+
+.add-btn:hover {
+  background: linear-gradient(135deg, #3141c1, #212a8f); /* Darker gradient on hover */
+  transform: translateY(-2px); /* Slight lift effect */
+  box-shadow: 0 6px 12px rgba(65, 84, 241, 0.3); /* Stronger shadow on hover */
+}
+
+.add-btn:active {
+  transform: translateY(0); /* Reset lift effect on click */
+  box-shadow: 0 3px 6px rgba(65, 84, 241, 0.2); /* Subtle shadow on click */
+}
+
+.add-btn i {
+  font-size: 18px; /* Icon size */
+  color: #fff; /* Icon color */
+}
+
+
+/* Enhanced Modal Styling */
+.modal-content {
+  border-radius: 15px; /* Rounded corners */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  border: none; /* Remove default border */
+  overflow: hidden; /* Ensure content stays within rounded corners */
+  transition: all 0.3s ease; /* Smooth transition for hover effects */
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #4154f1, #3141c1); /* Gradient background */
+  color: #fff; /* White text */
+  padding: 20px; /* Add padding for better spacing */
+  border-bottom: none; /* Remove default border */
+}
+
+.modal-header .modal-title {
+  font-size: 20px; /* Larger font size */
+  font-weight: 600; /* Bold text */
+  margin: 0;
+}
+
+.modal-header .btn-close {
+  background-color: #fff; /* White close button */
+  border-radius: 50%; /* Rounded close button */
+  padding: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  transition: all 0.3s ease;
+}
+
+.modal-header .btn-close:hover {
+  background-color: #f0f0f0; /* Slightly darker background on hover */
+}
+
+.modal-body {
+  padding: 20px; /* Add padding for better spacing */
+  font-size: 16px; /* Slightly larger font size */
+  color: #333; /* Neutral text color */
+  background-color: #f9f9f9; /* Light gray background */
+}
+
+.modal-footer {
+  background-color: #f6f6f6; /* Light footer background */
+  padding: 15px 20px; /* Add padding for better spacing */
+  border-top: none; /* Remove default border */
+  display: flex;
+  justify-content: flex-end; /* Align buttons to the right */
+  gap: 10px; /* Add spacing between buttons */
+}
+
+.modal-footer .btn {
+  padding: 10px 20px; /* Add padding for better spacing */
+  font-size: 14px; /* Adjust font size */
+  border-radius: 25px; /* Rounded buttons */
+  transition: all 0.3s ease; /* Smooth transition for hover effects */
+}
+
+.modal-footer .btn-secondary {
+  background-color: #e0e0e0; /* Light gray background */
+  color: #333; /* Neutral text color */
+  border: none;
+}
+
+.modal-footer .btn-secondary:hover {
+  background-color: #d6d6d6; /* Slightly darker gray on hover */
+}
+
+.modal-footer .btn-primary {
+  background: linear-gradient(135deg, #4154f1, #3141c1); /* Gradient background */
+  color: #fff; /* White text */
+  border: none;
+  box-shadow: 0 4px 8px rgba(65, 84, 241, 0.2); /* Subtle shadow */
+}
+
+.modal-footer .btn-primary:hover {
+  background: linear-gradient(135deg, #3141c1, #212a8f); /* Darker gradient on hover */
+  box-shadow: 0 6px 12px rgba(65, 84, 241, 0.3); /* Stronger shadow on hover */
+  transform: translateY(-2px); /* Slight lift effect */
+}
+
+.modal-footer .btn-primary:active {
+  transform: translateY(0); /* Reset lift effect on click */
+  box-shadow: 0 3px 6px rgba(65, 84, 241, 0.2); /* Subtle shadow on click */
+}
+
+
+
+.source-selector {
+  flex-grow: 1;
+  margin-right: 15px;
+}
+
+.source-selector .form-select {
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+  padding: 8px 15px;
+  font-size: 14px;
+  color: #012970;
+  transition: all 0.3s ease;
+  box-shadow: none;
+}
+
+.source-selector .form-select:focus {
+  border-color: #4154f1;
+  box-shadow: 0 0 0 0.25rem rgba(65, 84, 241, 0.25);
+}
+
+
+
+/* Enhanced Header Styling */
+.header {
+  background-color: #ffffff; /* White background */
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  padding: 10px 20px; /* Add padding for spacing */
+  z-index: 999; /* Ensure it stays on top */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Space between logo and text */
+  text-decoration: none;
+}
+
+.logo img {
+  max-height: 50px; /* Restrict logo height */
+}
+
+.logo span {
+  font-size: 20px;
+  font-weight: 700;
+  color: #012970; /* Dark blue */
+  font-family: "Nunito", sans-serif;
+}
+
+.logo:hover span {
+  color: #4154f1; /* Lighter blue on hover */
+}
+
+/* Logout Button Styling */
+#logoutButton {
+  background-color: #413b3b; /* Bootstrap danger color */
+  color: #fff; /* White text */
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 15px;
+  border-radius: 5px;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between icon and text */
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+#logoutButton:hover {
+  background-color: #c85f23; /* Darker red on hover */
+  transform: translateY(-2px); /* Slight lift effect */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
+}
+
+#logoutButton:active {
+  transform: translateY(0); /* Reset lift effect on click */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow on click */
+}
+
+/* Responsive Design for Header */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .logo span {
+    font-size: 16px; /* Smaller text for logo */
+  }
+
+  #logoutButton {
+    font-size: 12px; /* Smaller button text */
+    padding: 6px 10px; /* Reduce padding */
+  }
 }

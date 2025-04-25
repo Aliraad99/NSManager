@@ -18,10 +18,23 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 @router.get("/GetAllStreams", response_model=List[StreamSchema])
-async def GetAllStreams(db: AsyncSession = Depends(get_db)):
+async def GetAllStreams(
+    db: AsyncSession = Depends(get_db),
+    offset: int = 0,
+    limit: int = 10,
+    sourceID: int = None 
+):
+    total_count = await stream_repo.GetStreamCount(db, sourceID=sourceID)
+    db_streams = await stream_repo.GetAllStreams(db, offset=offset, limit=limit, sourceID=sourceID)
 
-    db_streams = await stream_repo.GetAllStreams(db)
-    return db_streams
+    serialized_streams = [StreamSchema.from_orm(stream).dict() for stream in db_streams]
+
+    response = JSONResponse(content=serialized_streams)
+    response.headers["X-Total-Count"] = str(total_count)
+    return response
+
+
+
 
 @router.get("/GetStreamById/{StreamId}", response_model=StreamSchema)
 async def GetStreamById(StreamId: int, db: AsyncSession = Depends(get_db)):
@@ -46,6 +59,40 @@ async def SaveStream(stream: StreamSchema, db: AsyncSession = Depends(get_db)):
     return db_stream
 
 
+@router.put("/UpdateStream/{stream_id}", response_model=StreamSchema)
+async def UpdateStream(
+    stream_id: int,
+    updated_data: StreamSchema,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Updates an existing stream with the given data.
+    """
+    updated_stream = await stream_repo.UpdateStream(db, stream_id, updated_data.dict(exclude_unset=True))
+    return updated_stream
+
+@router.delete("/DeleteStream/{stream_id}")
+async def DeleteStream(
+    stream_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Deletes a stream by its ID.
+    """
+    result = await stream_repo.DeleteStream(db, stream_id)
+    return result
+
+
+
+
+
+
+
+
+
+
+
+
 
 @router.post("/record-streams-by-source/{SourceId}/{duration}")
 async def record_streams_by_source(
@@ -64,7 +111,7 @@ async def record_streams_by_source(
 
         recorder = StreamRecorder()
         
-        # Prepare directory with source name
+       
         try:
             source_dir = await recorder._prepare_source_directory(SourceId, db_source.name)
             logger.info(f"Recording to directory: {source_dir}")
@@ -75,7 +122,7 @@ async def record_streams_by_source(
                 detail=f"Failed to prepare recording directory: {str(e)}"
             )
 
-        # Create recording tasks
+        
         tasks = [
             recorder.record_stream(
                 stream_url=stream.stream_url,
@@ -123,67 +170,73 @@ async def record_streams_by_source(
 
 
 
-@router.get("/get-last-inspection")
-async def get_last_inspection():
-    """
-    Returns the most recent inspection results with video file paths
-    """
-    recordings_dir = Path("recordings")
+
+
+
+
+
+
+# @router.get("/get-last-inspection")
+# async def get_last_inspection():
+#     """
+#     Returns the most recent inspection results with video file paths
+#     """
+#     recordings_dir = Path("recordings")
     
-    if not recordings_dir.exists():
-        return JSONResponse(
-            status_code=404,
-            content={
-                "status": "not_found",
-                "message": "No recordings directory exists",
-                "successful": []
-            }
-        )
+#     if not recordings_dir.exists():
+#         return JSONResponse(
+#             status_code=404,
+#             content={
+#                 "status": "not_found",
+#                 "message": "No recordings directory exists",
+#                 "successful": []
+#             }
+#         )
     
-    # Find all source directories
-    sources = []
-    for source_dir in recordings_dir.iterdir():
-        if source_dir.is_dir() and source_dir.name.startswith("source_"):
-            try:
-                source_id = int(source_dir.name.split("_")[1])
-                mod_time = datetime.fromtimestamp(source_dir.stat().st_mtime)
-                sources.append((source_id, source_dir, mod_time))
-            except (ValueError, IndexError, OSError):
-                continue
+#     # Find all source directories
+#     sources = []
+#     for source_dir in recordings_dir.iterdir():
+#         if source_dir.is_dir() and source_dir.name.startswith("source_"):
+#             try:
+#                 source_id = int(source_dir.name.split("_")[1])
+#                 mod_time = datetime.fromtimestamp(source_dir.stat().st_mtime)
+#                 sources.append((source_id, source_dir, mod_time))
+#             except (ValueError, IndexError, OSError):
+#                 continue
     
-    if not sources:
-        return JSONResponse(
-            status_code=404,
-            content={
-                "status": "not_found",
-                "message": "No inspection directories found",
-                "successful": []
-            }
-        )
+#     if not sources:
+#         return JSONResponse(
+#             status_code=404,
+#             content={
+#                 "status": "not_found",
+#                 "message": "No inspection directories found",
+#                 "successful": []
+#             }
+#         )
     
-    # Sort by modification time (newest first)
-    sources.sort(key=lambda x: x[2], reverse=True)
-    source_id, source_dir, mod_time = sources[0]
+#     # Sort by modification time (newest first)
+#     sources.sort(key=lambda x: x[2], reverse=True)
+#     source_id, source_dir, mod_time = sources[0]
     
-    # Get all recordings from this directory
-    successful = []
-    for recording in source_dir.glob("*.mp4"):
-        if recording.is_file():
-            successful.append({
-                "stream_name": recording.stem,
-                "output_file": str(recording),
-                "url": f"/recordings/source_{source_id}/{recording.name}",
-                "file_size": f"{os.path.getsize(recording) / (1024 * 1024):.2f} MB",
-                "modified_time": datetime.fromtimestamp(
-                    recording.stat().st_mtime
-                ).isoformat()
-            })
+#     # Get all recordings from this directory
+#     successful = []
+#     for recording in source_dir.glob("*.mp4"):
+#         if recording.is_file():
+#             successful.append({
+#                 "stream_name": recording.stem,
+#                 "output_file": str(recording),
+#                 "url": f"/recordings/source_{source_id}/{recording.name}",
+#                 "file_size": f"{os.path.getsize(recording) / (1024 * 1024):.2f} MB",
+#                 "modified_time": datetime.fromtimestamp(
+#                     recording.stat().st_mtime
+#                 ).isoformat()
+#             })
     
-    return {
-        "status": "success",
-        "source_id": source_id,
-        "inspection_time": mod_time.isoformat(),
-        "directory": str(source_dir),
-        "successful": successful,
-        "success_count": len(successful)
-    }
+#     return {
+#         "status": "success",
+#         "source_id": source_id,
+#         "inspection_time": mod_time.isoformat(),
+#         "directory": str(source_dir),
+#         "successful": successful,
+#         "success_count": len(successful)
+#     }

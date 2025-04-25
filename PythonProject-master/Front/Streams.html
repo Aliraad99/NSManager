@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>NSManager Manage Streams</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="assets/img/logo.png" rel="icon">
+
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="assets/vendor/quill/quill.snow.css" rel="stylesheet">
+  <link href="assets/vendor/quill/quill.bubble.css" rel="stylesheet">
+  <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+  <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="assets/css/style.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <header id="header" class="header fixed-top d-flex align-items-center">
+    <div class="container d-flex justify-content-between align-items-center">
+      <!-- Logo Section -->
+      <a href="Streams.html" class="logo d-flex align-items-center">
+        <img src="assets/img/logo.png" alt="logo">
+        <span class="d-none d-lg-block">NSManager</span>
+      </a>
+      
+      <button id="logoutButton" class="btn btn-danger">Logout</button>
+    </div>
+  </header>
+
+
+
+  <main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>Manage Streams</h1>
+
+    </div><!-- End Page Title -->
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="index.html">Inspection Task</a></li>
+        <li class="breadcrumb-item">Manage Streams</li>
+      </ol>
+    </nav>
+
+    <section class="section dashboard">
+      <div class="row">
+
+        <div class="col-lg-12">
+
+          <div class="col-lg-12">
+            <div class="card">
+              
+
+
+             
+              
+              <div class="card-body">
+                
+                <div class="filter-bar">
+                  <div class="source-selector">
+                    <select class="form-select" id="sourceSelect">
+                      <option selected>All Sources</option>
+                      
+      
+                    </select>
+                  </div>
+                  <button class="add-btn" id="AddStream">
+                    <i class="bi bi-plus-square"></i> Add Stream
+                  </button>
+
+                  <button class="add-btn" id="AddSource">
+                    <i class="bi bi-plus-square"></i> Add Source
+                  </button>
+                </div>
+                                <div class="search-bar-container">
+                  <div class="search-bar">
+                      <input type="text" id="searchInput" class="form-control" placeholder="Search by name or URL">
+                  </div>
+                  <div id="totalCount" class="text-center">Total Streams: 0</div>
+
+                  <div>
+                      <label for="pageSizeSelect" class="me-2">Streams per page:</label>
+                      <select id="pageSizeSelect" class="form-select d-inline-block w-auto">
+                          <option value="25">25</option>
+                          <option value="50">50</option>
+                          <option value="100">100</option>
+                          <option value="all">All</option>
+                      </select>
+                  </div>
+              </div>
+
+
+                <!-- Table with stripped rows -->
+                <div class="table-responsive">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Stream Name</th>
+                        <th scope="col">Source</th>
+                        <th scope="col">URL</th>
+                        
+                        <th scope="col">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        
+                      </tr>
+  
+
+                    </tbody>
+
+                  </table>
+
+                 
+
+                </div>
+                
+
+              </div>
+            </div>
+          </div>
+
+
+
+
+   
+
+
+
+
+
+
+
+
+        </div>
+
+
+
+
+      </div>
+    </section>
+
+
+
+
+
+<!-- Add Stream Modal -->
+<div class="modal fade" id="addStreamModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Stream</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addStreamForm">
+          <div class="mb-3">
+            <label for="streamName" class="form-label">Stream Name</label>
+            <input type="text" class="form-control" id="streamName" placeholder="Enter stream name" required>
+          </div>
+          <div class="mb-3">
+            <label for="streamUrl" class="form-label">Stream URL</label>
+            <input type="url" class="form-control" id="streamUrl" placeholder="Enter stream URL" required>
+          </div>
+          <div class="mb-3">
+            <label for="sourceId" class="form-label">Source</label>
+            <select class="form-select" id="sourceId" required>
+              <option value="" selected disabled>Select a source</option>
+              <!-- Options will be dynamically populated -->
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary w-100 add-btn">Add Stream</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Add Source Modal -->
+<div class="modal fade" id="addSourceModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Source</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addSourceForm">
+          <div class="mb-3">
+            <label for="sourceName" class="form-label">Source Name</label>
+            <input type="text" class="form-control" id="sourceName" placeholder="Enter source name" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100 add-btn">Add Source</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- edit Source Modal -->
+<div class="modal fade" id="editStreamModal" tabindex="-1" aria-labelledby="editStreamModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <form id="editStreamForm">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="editStreamModalLabel">Edit Stream</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  <input type="hidden" id="editStreamId">
+                  <div class="mb-3">
+                      <label for="editStreamName" class="form-label">Stream Name</label>
+                      <input type="text" class="form-control" id="editStreamName" required>
+                  </div>
+                  <div class="mb-3">
+                      <label for="editStreamUrl" class="form-label">Stream URL</label>
+                      <input type="text" class="form-control" id="editStreamUrl" required>
+                  </div>
+                  <div class="mb-3">
+                      <label for="editSourceId" class="form-label">Source</label>
+                      <select class="form-select" id="editSourceId" required>
+                          <!-- Options will be populated dynamically -->
+                      </select>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-primary add-btn">Save Changes</button>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm Deletion</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              Are you sure you want to delete this stream?
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+
+
+<div id="statusAlert" class="alert d-none" role="alert"></div>
+<div id="loadingSpinner" class="spinner-border text-primary d-none" role="status">
+  <span class="visually-hidden">Loading...</span>
+</div>
+
+
+
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer" class="footer">
+    <div class="copyright">
+    </div>
+    <div class="credits">
+    </div>
+  </footer><!-- End Footer -->
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/chart.js/chart.umd.js"></script>
+  <script src="assets/vendor/echarts/echarts.min.js"></script>
+  <script src="assets/vendor/quill/quill.js"></script>
+  <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
+  <script src="assets/vendor/tinymce/tinymce.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Template Main JS File -->
+  <script src="assets/js/main.js"></script>
+  <script src="JS/streams.js"></script>
+</body>
+
+</html>

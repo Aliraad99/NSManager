@@ -3,11 +3,24 @@ from fastapi import HTTPException
 from app.Models.Stream import Stream
 from app.Schemas.StreamSchema import StreamSchema
 from sqlalchemy.future import select
+from sqlalchemy.sql import func
 
 
-async def GetAllStreams(db: AsyncSession):
-    result = await db.execute(select(Stream))
+
+async def GetAllStreams(db: AsyncSession, offset: int = 0, limit: int = 10, sourceID: int = None):
+    query = select(Stream)
+    if sourceID is not None:
+        query = query.where(Stream.sourceID == sourceID)  # Apply the sourceID filter
+    query = query.offset(offset).limit(limit)  # Apply pagination after filtering
+    result = await db.execute(query)
     return result.scalars().all()
+
+async def GetStreamCount(db: AsyncSession, sourceID: int = None) -> int:
+    query = select(func.count()).select_from(Stream)
+    if sourceID is not None:
+        query = query.filter(Stream.sourceID == sourceID)
+    result = await db.scalar(query)
+    return result
 
 async def GetStreamById(db: AsyncSession, StreamId: int):
     result = await db.execute(select(Stream).filter(Stream.id == StreamId))
@@ -41,3 +54,31 @@ async def SaveStream(db: AsyncSession, stream: StreamSchema):
     return new_stream
 
     
+async def UpdateStream(db: AsyncSession, stream_id: int, updated_data: dict):
+    query = select(Stream).where(Stream.id == stream_id)
+    result = await db.execute(query)
+    db_stream = result.scalar_one_or_none()
+
+    if not db_stream:
+        raise HTTPException(status_code=404, detail="Stream not found")
+
+    for key, value in updated_data.items():
+        setattr(db_stream, key, value)
+
+    db.add(db_stream)
+    await db.commit()
+    await db.refresh(db_stream)
+    return db_stream
+
+
+async def DeleteStream(db: AsyncSession, stream_id: int):
+    query = select(Stream).where(Stream.id == stream_id)
+    result = await db.execute(query)
+    db_stream = result.scalar_one_or_none()
+
+    if not db_stream:
+        raise HTTPException(status_code=404, detail="Stream not found")
+
+    await db.delete(db_stream)
+    await db.commit()
+    return {"message": f"Stream with ID {stream_id} deleted successfully"}

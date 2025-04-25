@@ -2,7 +2,7 @@ var successedStreams = [];
 var failedStreams = [];
 var issuesStreams = [];
 
-const API_URL = "http://104.194.10.42:8010/";
+const API_URL = "http://localhost:8010/";
 
 $(document).ready(function() {
     loadSources();
@@ -274,3 +274,30 @@ $("#toggleButton").click(function() {
     }
 })
 
+
+
+// Logout functionality
+function logout() {
+    console.log("Logout function triggered"); // Debug log
+    $.ajax({
+        url: API_URL + "logout", // Backend logout endpoint
+        type: "POST",
+        xhrFields: {
+            withCredentials: true, // Include cookies in the request
+        },
+        success: function () {
+            console.log("Logout successful"); // Debug log
+            alert("You have been logged out.");
+            window.location.href = "/"; // Redirect to the login page
+        },
+        error: function (xhr, status, error) {
+            console.error("Logout failed:", status, error); // Debug log
+            alert("Failed to log out. Please try again.");
+        },
+    });
+}
+
+$(document).on("click", "#logoutButton", function (event) {
+    event.preventDefault(); // Prevent default behavior (e.g., form submission or page refresh)
+    logout();
+});
