@@ -30,3 +30,20 @@ async def AddSource(source: SourceSchema, db: AsyncSession = Depends(get_db)):
 
     db_source = await source_repo.AddSource(db, source)
     return db_source
+
+
+@router.delete("/DeleteSource/{SourceId}", response_model=SourceSchema)
+async def DeleteSource(SourceId: int, db: AsyncSession = Depends(get_db)):
+
+    db_source = await source_repo.DeleteSource(db, SourceId)
+    if not db_source:
+        raise HTTPException(status_code=404, detail="Source not found")
+    return db_source
+
+@router.put("/UpdateSource/{SourceId}", response_model=SourceSchema)
+async def UpdateSource(SourceId: int, source: SourceSchema, db: AsyncSession = Depends(get_db)):
+
+    db_source = await source_repo.UpdateSource(db, SourceId, source)
+    if not db_source:
+        raise HTTPException(status_code=404, detail="Source not found")
+    return db_source

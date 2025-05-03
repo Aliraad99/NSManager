@@ -29,7 +29,7 @@ app.mount("/JS", StaticFiles(directory=frontend_path / "JS"), name="js")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins=["http://localhost:8010"],  # Replace with your frontend's URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -70,6 +70,17 @@ async def read_streams(request: Request):
         return RedirectResponse(url="/")
     return FileResponse(frontend_path / "Streams.html")
 
+
+@app.get("/Sources.html")
+async def read_sources(request: Request):
+    token = request.cookies.get("access_token")
+    if not token:
+        return RedirectResponse(url="/")
+    try:
+        get_current_user(token)
+    except Exception:
+        return RedirectResponse(url="/")
+    return FileResponse(frontend_path / "Sources.html")
 
 app.include_router(AuthRoutes, prefix="/Auth", tags=["Auth"])
 app.include_router(UserRoutes, prefix="/Users", tags=["Users"])

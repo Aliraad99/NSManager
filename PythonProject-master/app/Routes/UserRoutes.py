@@ -41,3 +41,27 @@ async def GetUserByEmail(UserEmail: str, db: AsyncSession = Depends(get_db)):
     except Exception as e:
         print(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+
+
+@router.delete("/DeleteUser/{UserId}")
+async def DeleteUser(UserId: int, db: AsyncSession = Depends(get_db)):
+    return await user_repo.DeleteUser(db, UserId)
+
+@router.put("/ChangePassword/{UserId}")
+async def ChangePassword(UserId: int, NewPassword: str, db: AsyncSession = Depends(get_db)):
+    return await user_repo.ChangePassword(db, UserId, NewPassword)
+
+
+@router.get("/GetUserDetails", response_model=UserSchema)
+async def GetUserDetails(current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    try:
+        # Use the email from the token to fetch user details
+        db_user = await user_repo.GetUserByEmail(db, current_user["Email"])
+        if db_user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        return db_user
+    except Exception as e:
+        print(f"An error occurred while fetching user details: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")

@@ -47,3 +47,27 @@ async def SaveUser(db: AsyncSession, user: UserSchema):
     await db.commit()
     await db.refresh(db_user)
     return UserSchema.from_orm(db_user)
+
+async def DeleteUser(db: AsyncSession, UserId: int):
+    result = await db.execute(select(User).filter(User.Id == UserId))
+    db_user = result.scalars().first()
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    await db.delete(db_user)
+    await db.commit()
+    return {"message": "User deleted successfully"}
+
+
+async def ChangePassword(db: AsyncSession, UserId: int, NewPassword: str):
+    result = await db.execute(select(User).filter(User.Id == UserId))
+    db_user = result.scalars().first()
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    hashedPassword = pwd_context.hash(NewPassword)
+    db_user.Password = hashedPassword
+
+    await db.commit()
+    await db.refresh(db_user)
+    return {"message": "Password updated successfully"}

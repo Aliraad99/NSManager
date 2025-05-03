@@ -1,4 +1,4 @@
-const API_URL = "http://104.194.10.42:8010/";
+const API_URL = "http://localhost:8010/";
 let streamIdToDelete = null;
 const appState = {
     sourceMap: {},

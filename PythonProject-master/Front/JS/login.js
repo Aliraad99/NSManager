@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Submitting login request with:", { UserEmail: email, UserPassword: password });
   
       try {
-        const response = await fetch("http://104.194.10.42:8010/Auth/Login/", {
+        const response = await fetch("http://localhost:8010/Auth/Login/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }),
         });
   
-        console.log("Response status:", response.status);
+        
   
         if (!response.ok) {
           const errorData = await response.json();
@@ -32,9 +32,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
   
         const data = await response.json();
-        console.log("Login successful, response data:", data);
+        
         localStorage.setItem("access_token", data.access_token); // Store token in localStorage
-        alert("Login successful!");
+        
         window.location.href = "index.html"; // Redirect to dashboard or another page
       } catch (error) {
         console.error("Error during login:", error);

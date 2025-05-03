@@ -37,7 +37,7 @@ async def Login(form_data: LoginModel, db: AsyncSession = Depends(get_db)):
     key="access_token",
     value=access_token,
     httponly=True,
-    secure=True,    # Use HTTPS in production
+    secure=False,    # Use HTTPS in production
     samesite="Lax", # Prevent CSRF in most cases
     path="/"  # Prevent CSRF in most cases
     )
@@ -54,7 +54,7 @@ async def logout():
     key="access_token",
     path="/",          # Matches the path set in set_cookie
     httponly=True,     # Matches the httponly attribute
-    secure=True,       # Matches the secure attribute
+    secure=False,       # Matches the secure attribute
     samesite="Lax" 
     )
     print("Cookie deletion attempted")  # Debug log

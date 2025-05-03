@@ -31,3 +31,26 @@ async def AddSource(db: AsyncSession, source: SourceSchema):
     await db.commit()
     await db.refresh(new_source)
     return new_source
+
+
+async def DeleteSource(db: AsyncSession, SourceId: int):
+    result = await db.execute(select(Source).filter(Source.id == SourceId))
+    source = result.scalars().first()
+    if source is None:
+        raise HTTPException(status_code=404, detail="Source not found")
+    
+    await db.delete(source)
+    await db.commit()
+    return source
+
+
+async def UpdateSource(db: AsyncSession, SourceId: int, source: SourceSchema):
+    result = await db.execute(select(Source).filter(Source.id == SourceId))
+    existing_source = result.scalars().first()
+    if existing_source is None:
+        raise HTTPException(status_code=404, detail="Source not found")
+    
+    existing_source.name = source.name
+    await db.commit()
+    await db.refresh(existing_source)
+    return existing_source
